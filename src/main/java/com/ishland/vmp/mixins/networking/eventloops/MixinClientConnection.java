@@ -4,6 +4,7 @@ import com.ishland.vmp.common.networking.eventloops.VMPEventLoops;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelPromise;
+import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkState;
@@ -18,18 +19,17 @@ public class MixinClientConnection {
 
     @Shadow private Channel channel;
 
-    @Redirect(method = "setState", at = @At(value = "INVOKE", target = "Lio/netty/channel/ChannelConfig;setAutoRead(Z)Lio/netty/channel/ChannelConfig;"))
-    private ChannelConfig onSetState(ChannelConfig instance, boolean b, NetworkState state) {
-        if (this.channel.config() == instance) {
+    @Redirect(method = "setState", at = @At(value = "INVOKE", target = "Lio/netty/channel/EventLoop;execute(Ljava/lang/Runnable;)V"))
+    private void onSetState(EventLoop eventLoop, Runnable r, NetworkState state) {
+        if (this.channel.eventLoop() == eventLoop) {
             final EventLoopGroup group = VMPEventLoops.getEventLoopGroup(this.channel, state);
             if (group != null) {
                 reregister(group);
-                return instance;
             } else {
-                return instance.setAutoRead(b);
+                eventLoop.execute(r);
             }
         } else {
-            return instance.setAutoRead(b);
+            eventLoop.execute(r);
         }
     }
 

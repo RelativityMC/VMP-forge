@@ -1,8 +1,17 @@
 pluginManagement {
     repositories {
+        mavenCentral()
+        maven {
+            name = 'Forge'
+            url = 'https://files.minecraftforge.net/maven'
+        }
         maven {
             name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
+        }
+        maven {
+            name = 'Architectury'
+            url = 'https://maven.architectury.dev/'
         }
 //        maven {
 //            name = 'Cotton'
@@ -11,3 +20,5 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
+rootProject.name = "VMP-forge"
