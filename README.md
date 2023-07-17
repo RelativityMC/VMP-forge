@@ -1,15 +1,14 @@
 # Very Many Players
 
-[![Github-CI](https://github.com/RelativityMC/VMP-fabric/workflows/build/badge.svg)](https://github.com/RelativityMC/VMP-fabric/actions/workflows/build.yml)
-[![Build Status](https://ci.codemc.io/job/RelativityMC/job/VMP-fabric/job/ver%252F1.19.2/badge/icon)](https://ci.codemc.io/job/RelativityMC/job/VMP-fabric/job/ver%252F1.19.2/)
+[![Github-CI](https://github.com/RelativityMC/VMP-forge/workflows/build/badge.svg)](https://github.com/RelativityMC/VMP-forge/actions/workflows/build.yml)
 [![Discord](https://img.shields.io/discord/756715786747248641?logo=discord&logoColor=white)](https://discord.io/ishlandbukkit)
 
-A Fabric mod designed to improve server performance at high playercounts. 
+A Forge mod designed to improve server performance at high playercounts. 
 
 **VMP is still in early development and things may break. Please report any issues to our issue tracker.**
 
 ## So what is VMP? 
-Very Many Players, or VMP for short, is a Fabric mod designed to improve general server performance at high playercount 
+Very Many Players, or VMP for short, is a forge mod designed to improve general server performance at high playercount 
 **without sacrificing vanilla functionality or behavior**.  
 For the best performance it is recommended to use VMP along with [Lithium](https://modrinth.com/mod/lithium).
 
@@ -43,7 +42,7 @@ For the best performance it is recommended to use VMP along with [Lithium](https
 **... and more**
 
 ## Support
-[Issue tracker](https://github.com/RelativityMC/VMP-fabric/issues)  
+[Issue tracker](https://github.com/RelativityMC/VMP-forge/issues)  
 [Discord server](https://discord.gg/Kdy8NM5HW4)
 
 ## Building and setting up

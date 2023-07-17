@@ -1,6 +1,6 @@
 package com.ishland.vmp.common.config;
 
-import net.fabricmc.loader.api.FabricLoader;
+import net.minecraftforge.fml.loading.FMLLoader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +27,7 @@ public class Config {
     static {
         final Properties properties = new Properties();
         final Properties newProperties = new Properties();
-        final Path path = FabricLoader.getInstance().getConfigDir().resolve("vmp.properties");
+        final Path path = FMLLoader.getGamePath().resolve("config").resolve("vmp.properties");
         if (Files.isRegularFile(path)) {
             try (InputStream in = Files.newInputStream(path, StandardOpenOption.CREATE)) {
                 properties.load(in);
