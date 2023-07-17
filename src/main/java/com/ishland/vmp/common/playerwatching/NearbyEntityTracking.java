@@ -2,6 +2,7 @@ package com.ishland.vmp.common.playerwatching;
 
 import com.ishland.vmp.common.maps.AreaMap;
 import com.ishland.vmp.common.playerwatching.compat.EntityPositionTransformer;
+import com.ishland.vmp.common.util.ModLoaderUtils;
 import com.ishland.vmp.common.util.SimpleObjectPool;
 import com.ishland.vmp.mixins.access.IThreadedAnvilChunkStorageEntityTracker;
 import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
@@ -14,7 +15,6 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
@@ -33,7 +33,7 @@ public class NearbyEntityTracking {
 
     static {
         List<EntityPositionTransformer> list = new ArrayList<>();
-        if (FabricLoader.getInstance().isModLoaded("valkyrienskies")) {
+        if (ModLoaderUtils.isModLoaded("valkyrienskies")) {
             System.out.println("ValkyrienSkies detected, applying compatibility patch");
             try {
                 list.add((EntityPositionTransformer)

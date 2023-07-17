@@ -3,7 +3,7 @@ package com.ishland.vmp.mixins;
 import com.ishland.vmp.common.chunk.sending.PlayerChunkSendingSystem;
 import com.ishland.vmp.common.config.Config;
 import com.ishland.vmp.common.logging.AsyncAppenderBootstrap;
-import net.fabricmc.loader.api.FabricLoader;
+import com.ishland.vmp.common.util.ModLoaderUtils;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -26,7 +26,7 @@ public class VMPMixinPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (mixinClassName.startsWith("com.ishland.vmp.mixins.carpet."))
-            return FabricLoader.getInstance().isModLoaded("carpet");
+            return ModLoaderUtils.isModLoaded("carpet");
         if (mixinClassName.startsWith("com.ishland.vmp.mixins.chunk.sending."))
             return PlayerChunkSendingSystem.ENABLED;
         if (mixinClassName.startsWith("com.ishland.vmp.mixins.playerwatching.optimize_nearby_entity_tracking_lookups"))
@@ -46,9 +46,9 @@ public class VMPMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.startsWith("com.ishland.vmp.mixins.chunk.loading.command"))
             return Config.USE_ASYNC_CHUNKS_ON_SOME_COMMANDS;
         if (mixinClassName.equals("com.ishland.vmp.mixins.playerwatching.MixinTACSCancelSendingKrypton"))
-            return FabricLoader.getInstance().isModLoaded("krypton");
+            return ModLoaderUtils.isModLoaded("krypton");
         if (mixinClassName.startsWith("com.ishland.vmp.mixins.networking.avoid_deadlocks"))
-            return !FabricLoader.getInstance().isModLoaded("raknetify");
+            return !ModLoaderUtils.isModLoaded("raknetify");
         return true;
     }
 

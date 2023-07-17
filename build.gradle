@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.1-SNAPSHOT'
+	id 'dev.architectury.loom' version '1.1-SNAPSHOT'
 	id 'io.github.juuxel.loom-quiltflower' version '1.+'
 	id 'maven-publish'
 	id 'com.github.johnrengelman.shadow' version '7.1.0'
@@ -31,6 +31,12 @@ repositories {
 
 loom {
 	accessWidenerPath = file("src/main/resources/vmp.accesswidener")
+
+	forge {
+		mixinConfig "vmp.mixins.json"
+		convertAccessWideners.set(true)
+		extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
+	}
 }
 
 configurations {
@@ -41,20 +47,20 @@ configurations {
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	forge "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+//	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	shadowInclude("com.github.RelativityMC.raknetify:fabric:${project.raknetify_version}") {
-		transitive = false
-	}
-	modImplementation ("com.github.RelativityMC.raknetify:fabric:${project.raknetify_version}")
+//	shadowInclude("com.github.RelativityMC.raknetify:fabric:${project.raknetify_version}") {
+//		transitive = false
+//	}
+//	modImplementation ("com.github.RelativityMC.raknetify:fabric:${project.raknetify_version}")
+//
+//	shadowInclude implementation("com.github.RelativityMC.raknetify:common:${project.raknetify_version}") {
+//		transitive = false
+//	}
 
-	shadowInclude implementation("com.github.RelativityMC.raknetify:common:${project.raknetify_version}") {
-		transitive = false
-	}
-
-	shadowInclude implementation("com.ibm.async:asyncutil:${async_util_version}")
-
+	shadowInclude forgeRuntimeLibrary(implementation("com.ibm.async:asyncutil:${async_util_version}"))
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	// modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
@@ -72,7 +78,7 @@ afterEvaluate {
 processResources {
 	inputs.property "version", project.version
 
-	filesMatching("fabric.mod.json") {
+	filesMatching("META-INF/mods.toml") {
 		expand "version": project.version
 	}
 }

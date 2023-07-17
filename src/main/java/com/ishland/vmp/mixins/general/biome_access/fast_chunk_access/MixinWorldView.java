@@ -18,20 +18,21 @@ import java.util.concurrent.CompletableFuture;
 @Mixin(WorldView.class)
 public interface MixinWorldView {
 
-    @Redirect(method = "getBiomeForNoiseGen", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldView;getChunk(IILnet/minecraft/world/chunk/ChunkStatus;Z)Lnet/minecraft/world/chunk/Chunk;"))
-    private Chunk redirectBiomeChunk(WorldView instance, int x, int z, ChunkStatus chunkStatus, boolean create) {
-        if (!create && instance instanceof ServerWorld world) {
-            final ChunkHolder holder = ((IThreadedAnvilChunkStorage) world.getChunkManager().threadedAnvilChunkStorage).invokeGetChunkHolder(ChunkPos.toLong(x, z));
-            if (holder != null) {
-                final CompletableFuture<Either<WorldChunk, ChunkHolder.Unloaded>> future = holder.getAccessibleFuture();
-                final Either<WorldChunk, ChunkHolder.Unloaded> either = future.getNow(null);
-                if (either != null) {
-                    final WorldChunk chunk = either.left().orElse(null);
-                    if (chunk != null) return chunk;
-                }
-            }
-        }
-        return instance.getChunk(x, z, chunkStatus, create);
-    }
+    // unsupported on forge
+//    @Redirect(method = "getBiomeForNoiseGen", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldView;getChunk(IILnet/minecraft/world/chunk/ChunkStatus;Z)Lnet/minecraft/world/chunk/Chunk;"))
+//    private Chunk redirectBiomeChunk(WorldView instance, int x, int z, ChunkStatus chunkStatus, boolean create) {
+//        if (!create && instance instanceof ServerWorld world) {
+//            final ChunkHolder holder = ((IThreadedAnvilChunkStorage) world.getChunkManager().threadedAnvilChunkStorage).invokeGetChunkHolder(ChunkPos.toLong(x, z));
+//            if (holder != null) {
+//                final CompletableFuture<Either<WorldChunk, ChunkHolder.Unloaded>> future = holder.getAccessibleFuture();
+//                final Either<WorldChunk, ChunkHolder.Unloaded> either = future.getNow(null);
+//                if (either != null) {
+//                    final WorldChunk chunk = either.left().orElse(null);
+//                    if (chunk != null) return chunk;
+//                }
+//            }
+//        }
+//        return instance.getChunk(x, z, chunkStatus, create);
+//    }
 
 }
