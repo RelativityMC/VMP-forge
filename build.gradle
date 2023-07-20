@@ -65,6 +65,8 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.joml/joml-primitives
 	compileOnly 'org.joml:joml-primitives:1.10.0'
 
+	annotationProcessor "net.fabricmc:sponge-mixin:0.12.5+mixin.0.8.5"
+
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	// modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
@@ -126,6 +128,10 @@ task("remapShadowJar", type: net.fabricmc.loom.task.RemapJarTask, dependsOn: sha
 }
 
 assemble.dependsOn(remapShadowJar)
+
+afterEvaluate {
+	net.fabricmc.loom.util.aw2at.Aw2At.setup(project, remapShadowJar)
+}
 
 // configure the maven publication
 publishing {
