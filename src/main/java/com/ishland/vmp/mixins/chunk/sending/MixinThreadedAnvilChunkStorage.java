@@ -22,7 +22,7 @@ public class MixinThreadedAnvilChunkStorage {
      * @reason take over chunk sending
      */
     @Overwrite
-    private void method_17243(MutableObject<ChunkDataS2CPacket> mutableObject, WorldChunk worldChunk, ServerPlayerEntity player) {
+    public void method_17243(MutableObject<ChunkDataS2CPacket> mutableObject, WorldChunk worldChunk, ServerPlayerEntity player) {
         if (this.playerChunkWatchingManager instanceof AreaPlayerChunkWatchingManager manager) {
             manager.onChunkLoaded(worldChunk.getPos().toLong());
         } else {
