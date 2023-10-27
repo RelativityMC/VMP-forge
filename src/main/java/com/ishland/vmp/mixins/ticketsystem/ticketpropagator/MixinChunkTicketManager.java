@@ -2,6 +2,7 @@ package com.ishland.vmp.mixins.ticketsystem.ticketpropagator;
 
 import com.ishland.vmp.mixins.access.IChunkHolder;
 import com.ishland.vmp.mixins.access.IChunkTicket;
+import com.ishland.vmp.mixins.access.IThreadedAnvilChunkStorage;
 import io.papermc.paper.util.misc.Delayed8WayDistancePropagator2D;
 import it.unimi.dsi.fastutil.longs.Long2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -29,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
@@ -61,29 +62,29 @@ public abstract class MixinChunkTicketManager {
     }
 
     @Unique
-    protected Long2IntLinkedOpenHashMap ticketLevelUpdates;
+    protected Long2IntLinkedOpenHashMap vmp$ticketLevelUpdates;
 
     @Unique
-    protected io.papermc.paper.util.misc.Delayed8WayDistancePropagator2D ticketLevelPropagator;
+    protected io.papermc.paper.util.misc.Delayed8WayDistancePropagator2D vmp$ticketLevelPropagator;
 
     @Unique
-    private ObjectArrayFIFOQueue<ChunkHolder> pendingChunkHolderUpdates;
+    private ObjectArrayFIFOQueue<ChunkHolder> vmp$pendingChunkHolderUpdates;
 
     // Paper distance map propagates level from max to 0 while vanilla
     // one propagate from 0 to max
     // So there need a conversion between these values
 
     @Unique
-    private static int convertBetweenTicketLevels(final int level) {
+    private static int vmp$convertBetweenTicketLevels(final int level) {
         return ChunkLevels.INACCESSIBLE - level + 1;
     }
 
     @Unique
-    protected final void updateTicketLevel(final long coordinate, final int ticketLevel) {
+    protected final void vmp$updateTicketLevel(final long coordinate, final int ticketLevel) {
         if (ticketLevel > ChunkLevels.INACCESSIBLE) {
-            this.ticketLevelPropagator.removeSource(coordinate);
+            this.vmp$ticketLevelPropagator.removeSource(coordinate);
         } else {
-            this.ticketLevelPropagator.setSource(coordinate, convertBetweenTicketLevels(ticketLevel));
+            this.vmp$ticketLevelPropagator.setSource(coordinate, vmp$convertBetweenTicketLevels(ticketLevel));
         }
     }
 
@@ -91,7 +92,7 @@ public abstract class MixinChunkTicketManager {
     private void onInit(Executor workerExecutor, Executor mainThreadExecutor, CallbackInfo ci) {
         this.distanceFromTicketTracker = null; // fail-fast incompatibility
 
-        this.ticketLevelUpdates = new Long2IntLinkedOpenHashMap() {
+        this.vmp$ticketLevelUpdates = new Long2IntLinkedOpenHashMap() {
             @Override
             protected void rehash(int newN) {
                 if (newN < this.n) {
@@ -100,17 +101,17 @@ public abstract class MixinChunkTicketManager {
                 super.rehash(newN);
             }
         };
-        this.ticketLevelPropagator = new Delayed8WayDistancePropagator2D(
+        this.vmp$ticketLevelPropagator = new Delayed8WayDistancePropagator2D(
                 (long coordinate, byte oldLevel, byte newLevel) -> {
-                    this.ticketLevelUpdates.putAndMoveToLast(coordinate, convertBetweenTicketLevels(newLevel));
+                    this.vmp$ticketLevelUpdates.putAndMoveToLast(coordinate, vmp$convertBetweenTicketLevels(newLevel));
                 }
         );
-        this.pendingChunkHolderUpdates = new ObjectArrayFIFOQueue<>();
+        this.vmp$pendingChunkHolderUpdates = new ObjectArrayFIFOQueue<>();
     }
 
     @Redirect(method = {"purge", "addTicket(JLnet/minecraft/server/world/ChunkTicket;)V", "removeTicket(JLnet/minecraft/server/world/ChunkTicket;)V", "removePersistentTickets"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ChunkTicketManager$TicketDistanceLevelPropagator;updateLevel(JIZ)V"), require = 3, expect = 3)
     private void redirectUpdate(ChunkTicketManager.TicketDistanceLevelPropagator instance, long l, int i, boolean b) {
-        this.updateTicketLevel(l, i);
+        this.vmp$updateTicketLevel(l, i);
     }
 
     /**
@@ -127,7 +128,7 @@ public abstract class MixinChunkTicketManager {
         while(objectIterator.hasNext()) {
             Long2ObjectMap.Entry<SortedArraySet<ChunkTicket<?>>> entry = objectIterator.next();
             if (entry.getValue().removeIf(predicate)) {
-                this.updateTicketLevel(entry.getLongKey(), getLevel(entry.getValue())); // modified
+                this.vmp$updateTicketLevel(entry.getLongKey(), getLevel(entry.getValue())); // modified
             }
 
             if (entry.getValue().isEmpty()) {
@@ -139,15 +140,19 @@ public abstract class MixinChunkTicketManager {
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ChunkTicketManager$TicketDistanceLevelPropagator;update(I)I"))
     public int tickTickets(ChunkTicketManager.TicketDistanceLevelPropagator __, int distance, ThreadedAnvilChunkStorage threadedAnvilChunkStorage) {
-        boolean hasUpdates = this.ticketLevelPropagator.propagateUpdates();
+        if (!((IThreadedAnvilChunkStorage) threadedAnvilChunkStorage).getMainThreadExecutor().isOnThread()) {
+            throw new ConcurrentModificationException("Attempted to tick tickets asynchronously");
+        }
+
+        boolean hasUpdates = this.vmp$ticketLevelPropagator.propagateUpdates();
         if (hasUpdates) {
         }
 
-        while (!this.ticketLevelUpdates.isEmpty()) {
+        while (!this.vmp$ticketLevelUpdates.isEmpty()) {
             hasUpdates = true;
 
-            long key = this.ticketLevelUpdates.firstLongKey();
-            int newLevel = this.ticketLevelUpdates.removeFirstInt();
+            long key = this.vmp$ticketLevelUpdates.firstLongKey();
+            int newLevel = this.vmp$ticketLevelUpdates.removeFirstInt();
 
             ChunkHolder holder = this.getChunkHolder(key);
             int currentLevel = holder == null ? ChunkLevels.INACCESSIBLE + 1 : holder.getLevel();
@@ -162,11 +167,11 @@ public abstract class MixinChunkTicketManager {
                 continue;
             }
 
-            this.pendingChunkHolderUpdates.enqueue(holder);
+            this.vmp$pendingChunkHolderUpdates.enqueue(holder);
         }
 
-        while (!this.pendingChunkHolderUpdates.isEmpty()) {
-            ((IChunkHolder) this.pendingChunkHolderUpdates.dequeue()).invokeTick1(threadedAnvilChunkStorage, this.mainThreadExecutor);
+        while (!this.vmp$pendingChunkHolderUpdates.isEmpty()) {
+            ((IChunkHolder) this.vmp$pendingChunkHolderUpdates.dequeue()).invokeTick1(threadedAnvilChunkStorage, this.mainThreadExecutor);
         }
 
         return hasUpdates ? distance - 1 : distance;
