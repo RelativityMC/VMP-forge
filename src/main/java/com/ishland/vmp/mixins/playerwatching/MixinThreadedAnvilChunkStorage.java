@@ -2,6 +2,7 @@ package com.ishland.vmp.mixins.playerwatching;
 
 import com.google.common.collect.ImmutableList;
 import com.ishland.vmp.common.chunkwatching.AreaPlayerChunkWatchingManager;
+import com.ishland.vmp.common.config.Config;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.PlayerChunkWatchingManager;
@@ -58,6 +59,9 @@ public abstract class MixinThreadedAnvilChunkStorage {
     @Inject(method = "setViewDistance", at = @At("RETURN"))
     private void onSetViewDistance(CallbackInfo ci) {
         if (this.playerChunkWatchingManager instanceof AreaPlayerChunkWatchingManager areaPlayerChunkWatchingManager) {
+            if (Config.SHOW_CHUNK_TRACKING_MESSAGES) {
+                LOGGER.info("Changing watch distance to {}", this.watchDistance);
+            }
             LOGGER.info("Changing watch distance to {}", this.watchDistance);
             areaPlayerChunkWatchingManager.setWatchDistance(this.watchDistance);
         } else {
