@@ -23,8 +23,8 @@ import net.minecraft.world.dimension.DimensionType;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -76,15 +76,7 @@ public abstract class MixinServerWorld extends World implements StructureWorldAc
     @Nullable
     @Override
     public PlayerEntity getClosestPlayer(TargetPredicate targetPredicate, LivingEntity entity, double x, double y, double z) {
-        final ThreadedAnvilChunkStorage threadedAnvilChunkStorage = this.getChunkManager().threadedAnvilChunkStorage;
-        final AreaPlayerChunkWatchingManager playerChunkWatchingManager = (AreaPlayerChunkWatchingManager) ((IThreadedAnvilChunkStorage) threadedAnvilChunkStorage).getPlayerChunkWatchingManager();
-        final int chunkX = ChunkSectionPos.getSectionCoord(x);
-        final int chunkZ = ChunkSectionPos.getSectionCoord(z);
-
-        // no maxDistance here so just search within the range,
-        // and hopefully it works
-
-        final Object[] playersWatchingChunkArray = playerChunkWatchingManager.getPlayersInGeneralAreaMap(MCUtil.getCoordinateKey(chunkX, chunkZ));
+        final Object[] playersWatchingChunkArray = vmp$getPlayers(x, z);
 
         ServerPlayerEntity nearestPlayer = null;
         double nearestDistance = Double.MAX_VALUE;
@@ -101,6 +93,19 @@ public abstract class MixinServerWorld extends World implements StructureWorldAc
         }
 
         return nearestPlayer;
+    }
+
+    @Unique
+    private Object[] vmp$getPlayers(double x, double z) {
+        final ThreadedAnvilChunkStorage threadedAnvilChunkStorage = this.getChunkManager().threadedAnvilChunkStorage;
+        final AreaPlayerChunkWatchingManager playerChunkWatchingManager = (AreaPlayerChunkWatchingManager) ((IThreadedAnvilChunkStorage) threadedAnvilChunkStorage).getPlayerChunkWatchingManager();
+        final int chunkX = ChunkSectionPos.getSectionCoord(x);
+        final int chunkZ = ChunkSectionPos.getSectionCoord(z);
+
+        // no maxDistance here so just search within the range,
+        // and hopefully it works
+
+        return playerChunkWatchingManager.getPlayersInGeneralAreaMap(MCUtil.getCoordinateKey(chunkX, chunkZ));
     }
 
     @Nullable
