@@ -26,7 +26,7 @@ public abstract class MixinThreadedAnvilChunkStorage {
 
     @Shadow @Final private PlayerChunkWatchingManager playerChunkWatchingManager;
 
-    @Shadow private int watchDistance;
+    @Shadow int watchDistance;
 
     @Shadow @Final private static Logger LOGGER;
 
@@ -38,7 +38,7 @@ public abstract class MixinThreadedAnvilChunkStorage {
 
     @Shadow protected abstract ChunkSectionPos updateWatchedSection(ServerPlayerEntity player);
 
-    @Redirect(method = "<init>", at = @At(value = "NEW", target = "net/minecraft/server/world/PlayerChunkWatchingManager"))
+    @Redirect(method = "<init>", at = @At(value = "NEW", target = "()Lnet/minecraft/server/world/PlayerChunkWatchingManager;"))
     private PlayerChunkWatchingManager redirectNewPlayerChunkWatchingManager() {
         return new AreaPlayerChunkWatchingManager(
                 (player, chunkX, chunkZ) -> this.sendWatchPackets(player, new ChunkPos(chunkX, chunkZ), new MutableObject<>(), false, true),
