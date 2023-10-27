@@ -9,12 +9,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,10 +23,10 @@ public class MixinIngredient {
     private Ingredient.Entry[] entries;
 
     @Unique
-    private Set<Item> matchingItems = null;
+    private Set<Item> vmp$matchingItems = null;
 
     @Unique
-    private boolean isEmptyMatch = false;
+    private boolean vmp$isEmptyMatch = false;
 
     /**
      * @author ishland
@@ -41,15 +37,15 @@ public class MixinIngredient {
         if (itemStack == null) {
             return false;
         } else {
-            Set<Item> matchingItems = this.matchingItems;
-            boolean isEmptyMatch = this.isEmptyMatch;
+            Set<Item> matchingItems = this.vmp$matchingItems;
+            boolean isEmptyMatch = this.vmp$isEmptyMatch;
             if (matchingItems == null) {
-                matchingItems = this.matchingItems = Arrays.stream(this.entries)
+                matchingItems = this.vmp$matchingItems = Arrays.stream(this.entries)
                         .flatMap(entry -> entry.getStacks().stream())
                         .filter(itemStack1 -> !itemStack1.isEmpty())
                         .map(ItemStack::getItem)
                         .collect(Collectors.toCollection(HashSet::new));
-                isEmptyMatch = this.isEmptyMatch = this.matchingItems.isEmpty();
+                isEmptyMatch = this.vmp$isEmptyMatch = this.vmp$matchingItems.isEmpty();
             }
             if (itemStack.isEmpty()) {
                 return isEmptyMatch;

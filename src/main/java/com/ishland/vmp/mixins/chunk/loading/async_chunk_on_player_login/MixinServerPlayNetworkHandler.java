@@ -44,7 +44,7 @@ public abstract class MixinServerPlayNetworkHandler {
     }
 
     @Unique
-    private boolean isPerformingRespawn = false;
+    private boolean vmp$isPerformingRespawn = false;
 
     @Inject(method = "onClientStatus",
             at = @At(
@@ -60,9 +60,9 @@ public abstract class MixinServerPlayNetworkHandler {
             if (!this.player.notInAnyWorld && this.player.getHealth() > 0.0F) return; // no need to respawn
 
             ci.cancel();
-            if (this.isPerformingRespawn) return;
+            if (this.vmp$isPerformingRespawn) return;
 
-            this.isPerformingRespawn = true;
+            this.vmp$isPerformingRespawn = true;
             ServerWorld spawnPointWorld = this.server.getWorld(player.getSpawnPointDimension());
             spawnPointWorld = spawnPointWorld != null ? spawnPointWorld : this.server.getOverworld();
             BlockPos spawnPointPosition = this.player.getSpawnPointPosition();
@@ -78,7 +78,7 @@ public abstract class MixinServerPlayNetworkHandler {
                 if (Config.SHOW_ASYNC_LOADING_MESSAGES) {
                     LOGGER.info("Async chunk loading for player {} completed", this.player.getName().getString());
                 }
-                this.isPerformingRespawn = false;
+                this.vmp$isPerformingRespawn = false;
                 try {
                     AsyncChunkLoadUtil.setIsRespawnChunkLoadFinished(true);
                     this.onClientStatus(packet);

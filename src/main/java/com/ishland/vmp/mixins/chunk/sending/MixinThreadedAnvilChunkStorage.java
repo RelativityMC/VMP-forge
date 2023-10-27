@@ -29,5 +29,4 @@ public class MixinThreadedAnvilChunkStorage {
             throw new IllegalArgumentException("Not an instance of AreaPlayerChunkWatchingManager");
         }
     }
-
 }

@@ -24,15 +24,15 @@ public class MixinThreadedAnvilChunkStorage {
     @Final
     private Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> entityTrackers;
     @Unique
-    private final NearbyEntityTracking nearbyEntityTracking = new NearbyEntityTracking();
+    private final NearbyEntityTracking vmp$nearbyEntityTracking = new NearbyEntityTracking();
 
 
     @Redirect(method = "loadEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker;updateTrackedStatus(Ljava/util/List;)V"))
     private void redirectUpdateOnAddEntity(ThreadedAnvilChunkStorage.EntityTracker instance, List<ServerPlayerEntity> players) {
         if (((IThreadedAnvilChunkStorageEntityTracker) instance).getEntity() instanceof ServerPlayerEntity player) {
-            this.nearbyEntityTracking.addPlayer(player);
+            this.vmp$nearbyEntityTracking.addPlayer(player);
         }
-        this.nearbyEntityTracking.addEntityTracker(instance);
+        this.vmp$nearbyEntityTracking.addEntityTracker(instance);
         // update is done lazily on next tickEntityMovement
     }
 
@@ -51,9 +51,9 @@ public class MixinThreadedAnvilChunkStorage {
     @Redirect(method = "unloadEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker;stopTracking()V"))
     private void redirectUpdateOnRemoveEntity(ThreadedAnvilChunkStorage.EntityTracker instance) {
         if (((IThreadedAnvilChunkStorageEntityTracker) instance).getEntity() instanceof ServerPlayerEntity player) {
-            this.nearbyEntityTracking.removePlayer(player);
+            this.vmp$nearbyEntityTracking.removePlayer(player);
         }
-        this.nearbyEntityTracking.removeEntityTracker(instance);
+        this.vmp$nearbyEntityTracking.removeEntityTracker(instance);
         instance.stopTracking();
     }
 
@@ -73,7 +73,7 @@ public class MixinThreadedAnvilChunkStorage {
     @Overwrite
     public void tickEntityMovement() {
         try {
-            this.nearbyEntityTracking.tick();
+            this.vmp$nearbyEntityTracking.tick();
         } catch (Throwable t) {
             t.printStackTrace();
         }

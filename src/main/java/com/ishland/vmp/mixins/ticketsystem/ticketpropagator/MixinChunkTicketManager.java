@@ -45,18 +45,18 @@ public abstract class MixinChunkTicketManager {
     @Shadow protected @Nullable abstract ChunkHolder setLevel(long pos, int level, @Nullable ChunkHolder holder, int i);
 
     @Shadow @Final private ChunkTicketManager.NearbyChunkTicketUpdater nearbyChunkTicketUpdater;
-    @Shadow @Final private Set<ChunkHolder> chunkHolders;
-    @Shadow @Final private Executor mainThreadExecutor;
-    @Shadow @Final private LongSet chunkPositions;
+    @Shadow @Final Set<ChunkHolder> chunkHolders;
+    @Shadow @Final Executor mainThreadExecutor;
+    @Shadow @Final LongSet chunkPositions;
 
     @Shadow protected abstract SortedArraySet<ChunkTicket<?>> getTicketSet(long position);
 
-    @Shadow @Final private MessageListener<ChunkTaskPrioritySystem.UnblockingMessage> playerTicketThrottlerUnblocker;
+    @Shadow @Final MessageListener<ChunkTaskPrioritySystem.UnblockingMessage> playerTicketThrottlerUnblocker;
     @Shadow private long age;
-    @Shadow @Final private Long2ObjectOpenHashMap<SortedArraySet<ChunkTicket<?>>> ticketsByPosition;
+    @Shadow @Final Long2ObjectOpenHashMap<SortedArraySet<ChunkTicket<?>>> ticketsByPosition;
 
     @Shadow
-    protected static int getLevel(SortedArraySet<ChunkTicket<?>> sortedArraySet) {
+    private static int getLevel(SortedArraySet<ChunkTicket<?>> sortedArraySet) {
         throw new AbstractMethodError();
     }
 

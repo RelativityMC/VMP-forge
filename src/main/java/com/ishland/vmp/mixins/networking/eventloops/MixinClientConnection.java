@@ -2,7 +2,6 @@ package com.ishland.vmp.mixins.networking.eventloops;
 
 import com.ishland.vmp.common.networking.eventloops.VMPEventLoops;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
@@ -34,20 +33,20 @@ public class MixinClientConnection {
     }
 
     @Unique
-    private boolean isReregistering = false;
+    private boolean vmp$isReregistering = false;
 
     @Unique
-    private EventLoopGroup pendingReregistration = null;
+    private EventLoopGroup vmp$pendingReregistration = null;
 
     private synchronized void reregister(EventLoopGroup group) {
-        if (isReregistering) {
-            pendingReregistration = group;
+        if (vmp$isReregistering) {
+            vmp$pendingReregistration = group;
             return;
         }
 
         ChannelPromise promise = this.channel.newPromise();
         this.channel.config().setAutoRead(false);
-        isReregistering = true;
+        vmp$isReregistering = true;
 //        System.out.println("Deregistering " + this.channel);
         this.channel.deregister().addListener(future -> {
             if (future.isSuccess()) {
@@ -58,16 +57,16 @@ public class MixinClientConnection {
             }
         });
         promise.addListener(future -> {
-            isReregistering = false;
+            vmp$isReregistering = false;
             if (future.isSuccess()) {
 //                System.out.println("Reregistered " + this.channel);
                 this.channel.config().setAutoRead(true);
             } else {
                 this.channel.pipeline().fireExceptionCaught(future.cause());
             }
-            if (pendingReregistration != null) {
-                reregister(pendingReregistration);
-                pendingReregistration = null;
+            if (vmp$pendingReregistration != null) {
+                reregister(vmp$pendingReregistration);
+                vmp$pendingReregistration = null;
             }
         });
     }

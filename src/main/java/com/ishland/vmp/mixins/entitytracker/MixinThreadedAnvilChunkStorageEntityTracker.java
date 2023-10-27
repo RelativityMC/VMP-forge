@@ -17,21 +17,21 @@ public abstract class MixinThreadedAnvilChunkStorageEntityTracker {
     @Shadow protected abstract int getMaxTrackDistance();
 
     @Unique
-    private int lastDistanceUpdate = 0;
+    private int vmp$lastDistanceUpdate = 0;
 
     @Unique
-    private int cachedMaxDistance = 0;
+    private int vmp$cachedMaxDistance = 0;
 
     @Redirect(method = "updateTrackedStatus(Lnet/minecraft/server/network/ServerPlayerEntity;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker;getMaxTrackDistance()I"))
     private int redirectGetMaxTrackDistance(ThreadedAnvilChunkStorage.EntityTracker instance) {
         final int ticks = ((IThreadedAnvilChunkStorage) field_18245).getWorld().getServer().getTicks();
-        if (lastDistanceUpdate != ticks || cachedMaxDistance == 0) {
+        if (vmp$lastDistanceUpdate != ticks || vmp$cachedMaxDistance == 0) {
             final int maxTrackDistance = this.getMaxTrackDistance();
-            this.cachedMaxDistance = maxTrackDistance;
-            this.lastDistanceUpdate = ticks;
+            this.vmp$cachedMaxDistance = maxTrackDistance;
+            this.vmp$lastDistanceUpdate = ticks;
             return maxTrackDistance;
         }
-        return this.cachedMaxDistance;
+        return this.vmp$cachedMaxDistance;
     }
 
 }

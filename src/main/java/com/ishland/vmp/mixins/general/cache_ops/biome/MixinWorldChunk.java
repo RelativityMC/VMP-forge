@@ -29,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
 @Mixin(WorldChunk.class)
 public abstract class MixinWorldChunk extends Chunk implements PreloadingBiome {
 
-    @Shadow @Final private World world;
+    @Shadow @Final World world;
 
     public MixinWorldChunk(ChunkPos pos, UpgradeData upgradeData, HeightLimitView heightLimitView, Registry<Biome> biome, long inhabitedTime, @Nullable ChunkSection[] sectionArrayInitializer, @Nullable BlendingData blendingData) {
         super(pos, upgradeData, heightLimitView, biome, inhabitedTime, sectionArrayInitializer, blendingData);

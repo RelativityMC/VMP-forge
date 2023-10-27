@@ -26,43 +26,43 @@ import java.util.Set;
 @Mixin(ThreadedAnvilChunkStorage.EntityTracker.class)
 public abstract class MixinThreadedAnvilChunkStorageEntityTracker implements EntityTrackerExtension {
 
-    @Shadow @Final private Entity entity;
+    @Shadow @Final Entity entity;
     @Shadow @Final private Set<EntityTrackingListener> listeners;
 
     @Shadow public abstract void updateTrackedStatus(ServerPlayerEntity player);
 
-    @Shadow @Final private EntityTrackerEntry entry;
+    @Shadow @Final EntityTrackerEntry entry;
     @Unique
-    private double prevX = Double.NaN;
+    private double vmp$prevX = Double.NaN;
 
     @Unique
-    private double prevY = Double.NaN;
+    private double vmp$prevY = Double.NaN;
 
     @Unique
-    private double prevZ = Double.NaN;
+    private double vmp$prevZ = Double.NaN;
 
     @Override
     public boolean isPositionUpdated() {
         final Vec3d pos = this.entity.getPos();
-        return pos.x != this.prevX || pos.y != this.prevY || pos.z != prevZ;
+        return pos.x != this.vmp$prevX || pos.y != this.vmp$prevY || pos.z != vmp$prevZ;
     }
 
     @Override
     public void updatePosition() {
         final Vec3d pos = this.entity.getPos();
-        this.prevX = pos.x;
-        this.prevY = pos.y;
-        this.prevZ = pos.z;
+        this.vmp$prevX = pos.x;
+        this.vmp$prevY = pos.y;
+        this.vmp$prevZ = pos.z;
     }
 
     @Override
     public Vec3d getPreviousLocation() {
-        return new Vec3d(this.prevX, this.prevY, this.prevZ);
+        return new Vec3d(this.vmp$prevX, this.vmp$prevY, this.vmp$prevZ);
     }
 
     @Override
     public long getPreviousChunkPos() {
-        return ChunkPos.toLong(ChunkSectionPos.getSectionCoord((int) this.prevX), ChunkSectionPos.getSectionCoord((int) this.prevX));
+        return ChunkPos.toLong(ChunkSectionPos.getSectionCoord((int) this.vmp$prevX), ChunkSectionPos.getSectionCoord((int) this.vmp$prevX));
     }
 
     @Override

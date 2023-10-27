@@ -19,7 +19,7 @@ public abstract class MixinAbstractBlockAbstractBlockState {
     protected abstract BlockState asBlockState();
 
     @Unique
-    private FluidState cachedFluidState;
+    private FluidState vmp$cachedFluidState;
 
     /**
      * @author ishland
@@ -28,10 +28,10 @@ public abstract class MixinAbstractBlockAbstractBlockState {
     @SuppressWarnings("deprecation")
     @Overwrite
     public FluidState getFluidState() {
-        if (this.cachedFluidState == null) {
-            return this.cachedFluidState = this.getBlock().getFluidState(this.asBlockState());
+        if (this.vmp$cachedFluidState == null) {
+            return this.vmp$cachedFluidState = this.getBlock().getFluidState(this.asBlockState());
         }
-        return this.cachedFluidState;
+        return this.vmp$cachedFluidState;
     }
 
 }

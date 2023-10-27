@@ -33,12 +33,13 @@ import java.util.Set;
 public abstract class MixinTeleportCommand {
 
     @Shadow
-    protected static String formatFloat(double d) {
+    public static String formatFloat(double d) {
         throw new AbstractMethodError();
     }
 
     @Shadow
-    protected static void teleport(ServerCommandSource source, Entity target, ServerWorld world, double x, double y, double z, Set<PositionFlag> movementFlags, float yaw, float pitch, TeleportCommand.@Nullable LookTarget facingLocation) throws CommandSyntaxException {
+    public static void teleport(ServerCommandSource source, Entity target, ServerWorld world, double x, double y, double z, Set<PositionFlag> movementFlags, float yaw, float pitch, TeleportCommand.@Nullable LookTarget facingLocation) throws CommandSyntaxException {
+        throw new AbstractMethodError();
     }
 
     /**

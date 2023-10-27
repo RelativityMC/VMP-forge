@@ -13,34 +13,34 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinServerPlayerEntity implements IAsyncChunkPlayer {
 
     @Unique
-    private NbtCompound playerData = null;
+    private NbtCompound vmp$playerData = null;
 
     @Unique
-    private boolean chunkLoadCompleted = true;
+    private boolean vmp$chunkLoadCompleted = true;
 
     @Override
     public void markPlayerForAsyncChunkLoad() {
-        this.chunkLoadCompleted = false;
+        this.vmp$chunkLoadCompleted = false;
     }
 
     @Override
     public void setPlayerData(NbtCompound nbtCompound) {
-        this.playerData = nbtCompound;
+        this.vmp$playerData = nbtCompound;
     }
 
     @Override
     public NbtCompound getPlayerData() {
-        return this.playerData;
+        return this.vmp$playerData;
     }
 
     @Override
     public boolean isChunkLoadCompleted() {
-        return this.chunkLoadCompleted;
+        return this.vmp$chunkLoadCompleted;
     }
 
     @Override
     public void onChunkLoadComplete() {
-        this.chunkLoadCompleted = true;
+        this.vmp$chunkLoadCompleted = true;
     }
 
     @Inject(
@@ -51,6 +51,6 @@ public class MixinServerPlayerEntity implements IAsyncChunkPlayer {
             cancellable = true
     )
     private void suppressActionsDuringChunkLoad(CallbackInfo ci) {
-        if (!this.chunkLoadCompleted) ci.cancel();
+        if (!this.vmp$chunkLoadCompleted) ci.cancel();
     }
 }
