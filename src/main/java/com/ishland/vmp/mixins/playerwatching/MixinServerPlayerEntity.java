@@ -16,7 +16,7 @@ public class MixinServerPlayerEntity implements PlayerClientVDTracking {
     private boolean vmp$vdChanged = false;
 
     @Unique
-    private int vmp$clientVD = -1;
+    private int vmp$clientVD = 2;
 
     @Inject(method = "setClientSettings", at = @At("HEAD"))
     private void onClientSettingsChanged(ClientSettingsC2SPacket packet, CallbackInfo ci) {
