@@ -25,15 +25,15 @@ public class MixinThreadedAnvilChunkStorage {
     private Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> entityTrackers;
     @Shadow @Final private ThreadedAnvilChunkStorage.TicketManager ticketManager;
     @Unique
-    private final NearbyEntityTracking vmp$nearbyEntityTracking = new NearbyEntityTracking();
+    private final NearbyEntityTracking nearbyEntityTracking = new NearbyEntityTracking();
 
 
     @Redirect(method = "loadEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker;updateTrackedStatus(Ljava/util/List;)V"))
     private void redirectUpdateOnAddEntity(ThreadedAnvilChunkStorage.EntityTracker instance, List<ServerPlayerEntity> players) {
         if (((IThreadedAnvilChunkStorageEntityTracker) instance).getEntity() instanceof ServerPlayerEntity player) {
-            this.vmp$nearbyEntityTracking.addPlayer(player);
+            this.nearbyEntityTracking.addPlayer(player);
         }
-        this.vmp$nearbyEntityTracking.addEntityTracker(instance);
+        this.nearbyEntityTracking.addEntityTracker(instance);
         // update is done lazily on next tickEntityMovement
     }
 
@@ -52,9 +52,9 @@ public class MixinThreadedAnvilChunkStorage {
     @Redirect(method = "unloadEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker;stopTracking()V"))
     private void redirectUpdateOnRemoveEntity(ThreadedAnvilChunkStorage.EntityTracker instance) {
         if (((IThreadedAnvilChunkStorageEntityTracker) instance).getEntity() instanceof ServerPlayerEntity player) {
-            this.vmp$nearbyEntityTracking.removePlayer(player);
+            this.nearbyEntityTracking.removePlayer(player);
         }
-        this.vmp$nearbyEntityTracking.removeEntityTracker(instance);
+        this.nearbyEntityTracking.removeEntityTracker(instance);
         instance.stopTracking();
     }
 
@@ -74,7 +74,7 @@ public class MixinThreadedAnvilChunkStorage {
     @Overwrite
     public void tickEntityMovement() {
         try {
-            this.vmp$nearbyEntityTracking.tick(this.ticketManager);
+            this.nearbyEntityTracking.tick(this.ticketManager);
         } catch (Throwable t) {
             t.printStackTrace();
         }

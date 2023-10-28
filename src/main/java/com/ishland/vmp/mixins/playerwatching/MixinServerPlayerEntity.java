@@ -13,34 +13,34 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinServerPlayerEntity implements PlayerClientVDTracking {
 
     @Unique
-    private boolean vmp$vdChanged = false;
+    private boolean vdChanged = false;
 
     @Unique
-    private int vmp$clientVD = 2;
+    private int clientVD = 2;
 
     @Inject(method = "setClientSettings", at = @At("HEAD"))
     private void onClientSettingsChanged(ClientSettingsC2SPacket packet, CallbackInfo ci) {
         final int currentVD = packet.viewDistance();
-        if (currentVD != this.vmp$clientVD) this.vmp$vdChanged = true;
-        this.vmp$clientVD = Math.max(2, currentVD);
+        if (currentVD != this.clientVD) this.vdChanged = true;
+        this.clientVD = Math.max(2, currentVD);
     }
 
     @Inject(method = "copyFrom", at = @At("RETURN"))
     private void onPlayerCopy(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
-        this.vmp$clientVD = ((PlayerClientVDTracking) oldPlayer).getClientViewDistance();
-        this.vmp$vdChanged = true;
+        this.clientVD = ((PlayerClientVDTracking) oldPlayer).getClientViewDistance();
+        this.vdChanged = true;
     }
 
     @Unique
     @Override
     public boolean isClientViewDistanceChanged() {
-        return this.vmp$vdChanged;
+        return this.vdChanged;
     }
 
     @Unique
     @Override
     public int getClientViewDistance() {
-        this.vmp$vdChanged = false;
-        return this.vmp$clientVD;
+        this.vdChanged = false;
+        return this.clientVD;
     }
 }

@@ -33,20 +33,20 @@ public class MixinClientConnection {
     }
 
     @Unique
-    private boolean vmp$isReregistering = false;
+    private boolean isReregistering = false;
 
     @Unique
-    private EventLoopGroup vmp$pendingReregistration = null;
+    private EventLoopGroup pendingReregistration = null;
 
     private synchronized void reregister(EventLoopGroup group) {
-        if (vmp$isReregistering) {
-            vmp$pendingReregistration = group;
+        if (isReregistering) {
+            pendingReregistration = group;
             return;
         }
 
         ChannelPromise promise = this.channel.newPromise();
         this.channel.config().setAutoRead(false);
-        vmp$isReregistering = true;
+        isReregistering = true;
 //        System.out.println("Deregistering " + this.channel);
         this.channel.deregister().addListener(future -> {
             if (future.isSuccess()) {
@@ -57,16 +57,16 @@ public class MixinClientConnection {
             }
         });
         promise.addListener(future -> {
-            vmp$isReregistering = false;
+            isReregistering = false;
             if (future.isSuccess()) {
 //                System.out.println("Reregistered " + this.channel);
                 this.channel.config().setAutoRead(true);
             } else {
                 this.channel.pipeline().fireExceptionCaught(future.cause());
             }
-            if (vmp$pendingReregistration != null) {
-                reregister(vmp$pendingReregistration);
-                vmp$pendingReregistration = null;
+            if (pendingReregistration != null) {
+                reregister(pendingReregistration);
+                pendingReregistration = null;
             }
         });
     }

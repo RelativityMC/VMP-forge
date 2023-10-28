@@ -14,11 +14,11 @@ public class MixinClientConnection {
 
     @Shadow private Channel channel;
     @Unique
-    private volatile boolean vmp$isClosing = false;
+    private volatile boolean isClosing = false;
 
     @Redirect(method = "disconnect", at = @At(value = "INVOKE", target = "Lio/netty/channel/ChannelFuture;awaitUninterruptibly()Lio/netty/channel/ChannelFuture;", remap = false))
     private ChannelFuture noDisconnectWait(ChannelFuture instance) {
-        vmp$isClosing = true;
+        isClosing = true;
 //        if (instance.channel().eventLoop().inEventLoop()) {
 //            return instance; // no-op
 //        } else {
@@ -29,7 +29,7 @@ public class MixinClientConnection {
 
     @Redirect(method = "*", at = @At(value = "INVOKE", target = "Lio/netty/channel/Channel;isOpen()Z", remap = false))
     private boolean redirectIsOpen(Channel instance) {
-        return this.channel != null && (this.channel.isOpen() && !this.vmp$isClosing);
+        return this.channel != null && (this.channel.isOpen() && !this.isClosing);
     }
 
 }

@@ -16,19 +16,19 @@ public class MixinEntity {
 
     @Shadow private Box boundingBox;
     @Unique
-    private boolean vmp$boundingBoxChanged = false;
+    private boolean boundingBoxChanged = false;
 
     @Inject(method = "move", at = @At("HEAD"), cancellable = true)
     private void onMove(MovementType movementType, Vec3d movement, CallbackInfo ci) {
-        if (!vmp$boundingBoxChanged && movement.equals(Vec3d.ZERO)) {
+        if (!boundingBoxChanged && movement.equals(Vec3d.ZERO)) {
             ci.cancel();
-            vmp$boundingBoxChanged = false;
+            boundingBoxChanged = false;
         }
     }
 
     @Inject(method = "setBoundingBox", at = @At("HEAD"))
     private void onBoundingBoxChanged(Box boundingBox, CallbackInfo ci) {
-        if (!this.boundingBox.equals(boundingBox)) vmp$boundingBoxChanged = true;
+        if (!this.boundingBox.equals(boundingBox)) boundingBoxChanged = true;
     }
 
 }

@@ -23,10 +23,10 @@ public class MixinIngredient {
     private Ingredient.Entry[] entries;
 
     @Unique
-    private Set<Item> vmp$matchingItems = null;
+    private Set<Item> matchingItems = null;
 
     @Unique
-    private boolean vmp$isEmptyMatch = false;
+    private boolean isEmptyMatch = false;
 
     /**
      * @author ishland
@@ -37,15 +37,15 @@ public class MixinIngredient {
         if (itemStack == null) {
             return false;
         } else {
-            Set<Item> matchingItems = this.vmp$matchingItems;
-            boolean isEmptyMatch = this.vmp$isEmptyMatch;
+            Set<Item> matchingItems = this.matchingItems;
+            boolean isEmptyMatch = this.isEmptyMatch;
             if (matchingItems == null) {
-                matchingItems = this.vmp$matchingItems = Arrays.stream(this.entries)
+                matchingItems = this.matchingItems = Arrays.stream(this.entries)
                         .flatMap(entry -> entry.getStacks().stream())
                         .filter(itemStack1 -> !itemStack1.isEmpty())
                         .map(ItemStack::getItem)
                         .collect(Collectors.toCollection(HashSet::new));
-                isEmptyMatch = this.vmp$isEmptyMatch = this.vmp$matchingItems.isEmpty();
+                isEmptyMatch = this.isEmptyMatch = this.matchingItems.isEmpty();
             }
             if (itemStack.isEmpty()) {
                 return isEmptyMatch;
